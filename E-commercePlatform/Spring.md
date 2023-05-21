@@ -246,4 +246,7 @@ public class AppService {
 @Value("file:/path/to/logo.txt")
 private Resource resource;
 ```
+工程文件结构如下：
 
+![img_4.png](img_4.png)
+使用Maven的
