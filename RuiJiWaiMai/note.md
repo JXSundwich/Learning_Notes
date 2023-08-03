@@ -14,10 +14,9 @@
 ![img_3.png](img_3.png)
 退出功能：
 
-
 #### 代码开发
 后台登录功能：
-1）创建实体类Employee和emplo yee表进行映射，可以直接导入资料中提供的实体类
+1）创建实体类Employee和employee表进行映射，可以直接导入资料中提供的实体类
 登陆处理逻辑：
 1. 将页面的密码password进行md5加密处理
 2. 根据页面提交的用户名username查询数据库
@@ -41,8 +40,6 @@
 1. 创建自定义过滤器LoginCheckFilter
 2. 在启动类上加上@ServletComponentScan注解
 3. 完善过滤器的处理逻辑
-
-
 
 -----
 <font color="red">注意URL和URI的区别：</font>
@@ -192,3 +189,44 @@ ThreadLocal
 - springboot要和jdk的版本号对应 jdk1.8对应的是springboot 2.7.8 
 - BeanUtils.copyProperties(Object source,Object target);必须是两个对象 不能是两个list
 - 当前端不是以JSon形式传过来很多相同类型的数据时 后端如果要接收为List 必须加Requetparam注解 springboot会帮忙自动将传过来的参数转为List
+
+#### 部署
+手动部署：直接打包成jar包 在linux使用java -jar XXX.jar运行
+但这个方式会霸屏 后面需要改为后台运行
+
+<font color=red>**nohup命令：**no hang up(不挂起) 用于不挂断地运行指定命令，推出终端不会影响程序的运行</font>
+
+语法格式：nohup Command [Arg ...][&]
+
+Command：要执行的命令
+Arg：一些参数，可以指定输出文件
+&：让命令在后台运行
+举例：
+nohup java -jar boot工程.jar &> hello.log &
+ps -ef | grep java
+
+可以kill -9 进程号来结束进程
+> 在默认情况下，采用编号为15的TERM信号。TERM信号将终止所有不能捕获该信号的进程。对于那些可以捕获该信号的进程就要用编号为9的kill信号，强行“杀掉”该进程。 
+
+##### 自动部署
+1. 在Linux中安装Git
+2. 在linux中安装maven
+3. 编写shell脚本（拉取代码、编译、打包、启动）
+4. 为用户授予执行Shell脚本的权限
+5. 执行Shell脚本
+![img_48.png](img_48.png)
+
+
+<font color=red>为用户授权</font>
+chmod change mode 控制用户对文件的权限的命令
+
+-rw-r--r-- 分别代表 文件所有者 用户组 其他用户
+![img_49.png](img_49.png)
+比如： chmod 777 start.sh
+
+- 设置静态ip：
+![img_50.png](img_50.png)
+红色部分是需要改的 要和虚拟机的ip对应
+
+
+
