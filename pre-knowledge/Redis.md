@@ -63,10 +63,19 @@ Redis列表是简单的字符串列表，也就是说列表里面存的全是字
 **通用命令**
  ![img_25.png](img_25.png)
 
-
+> **Redis默认提供了16个数据库 默认打开的是0号数据库，可以在conf文件里改数量**
+> 可以通过select [database number]来选择数据库
 #### 在Java中操作Redis
 Redis的Java客户端很多，官方推荐的有三种：
 - Jedis
 - Lettuce
 - Redisson
-Spring对Redis客户端进行了整合，提供了Spring Data Redis，在Spring Boot项目中还提供了对应的Starter，即spring-boot-starter-data-redis
+Spring对Redis客户端进行了整合，提供了Spring Data Redis，在Spring Boot项目中还提供了对应的Starter，即spring-boot-starter-data-redis 自己设置一个序列化器
+
+Jedis:
+![img_26.png](img_26.png)
+
+Spring Data Redis:
+![img_27.png](img_27.png)
+RedisTemplate会默认序列化key 所以需要创建一个RedisConfig文件修改序列化的方式
+![img_28.png](img_28.png)

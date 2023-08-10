@@ -101,6 +101,8 @@ js只能保证前16位的精度 所以穿给后端的Long型id值出现了错误
 ![img_20.png](img_20.png)
 传进来的metaObject：
 ![img_21.png](img_21.png)
+程序会先根据@TableField的注解中的fill属性的值来决定是否需要自动填充，然后再更具insertFill等方法的内容来进行填充操作
+
 在这个类里面无法获取到HttpServletRequest 因为没有被@Controller标记
 所以获取用户的id是一个问题
 
@@ -184,11 +186,39 @@ ThreadLocal
 
 #### 短信发送
 使用阿里云短信服务
+![img_61.png](img_61.png)
+![img_62.png](img_62.png)
+- 申请签名
+- 申请模版
+- 获取AccessKey（右上方头像）
+- 权限授权
+#### 导入地址簿
+- 需求分析
+- ![img_63.png](img_63.png)
+- 数据表
+![img_64.png](img_64.png)
 
-### 遇到的问题
-- springboot要和jdk的版本号对应 jdk1.8对应的是springboot 2.7.8 
-- BeanUtils.copyProperties(Object source,Object target);必须是两个对象 不能是两个list
-- 当前端不是以JSon形式传过来很多相同类型的数据时 后端如果要接收为List 必须加Requetparam注解 springboot会帮忙自动将传过来的参数转为List
+#### 菜品展示
+![img_65.png](img_65.png)
+
+![img_66.png](img_66.png)
+
+#### 购物车功能
+![img_67.png](img_67.png)
+
+- 交互
+![img_68.png](img_68.png)
+
+#### 用户下单
+![img_69.png](img_69.png)
+
+![img_70.png](img_70.png)
+
+![img_71.png](img_71.png)
+
+![img_72.png](img_72.png)
+
+![img_73.png](img_73.png)
 
 #### 部署
 手动部署：直接打包成jar包 在linux使用java -jar XXX.jar运行
@@ -228,5 +258,201 @@ chmod change mode 控制用户对文件的权限的命令
 ![img_50.png](img_50.png)
 红色部分是需要改的 要和虚拟机的ip对应
 
+#### 优化
+##### 缓存优化
+![img_51.png](img_51.png)
+
+##### 缓存短信验证码
+![img_52.png](img_52.png)
+
+#### 缓存菜品数据
+![img_53.png](img_53.png)
+按照分类来缓存数据
+#####Spring Cache
+- 介绍：
+![img_54.png](img_54.png)
+- 常用注解
+![img_55.png](img_55.png)
+<font color=red>在springboot项目中，使用缓存技术只需要在项目中导入相关缓存的技术依赖包，并在启动类上使用@EnableCaching开启缓存支持即可</font>
+
+1. 改造DishController的list方法，先从Redis中获取菜品数据，如果有则直接返回，无需查询数据库；如果没有则查询数据库，并将查询到的1次品
+
+![img_56.png](img_56.png)
+value代表缓存的名称 每个缓存下面有多个key
+![img_57.png](img_57.png)
+#user.id #result.id 可以这样获得参数 动态构造key
+
+这个缓存是基于内存的，一旦重启服务，数据就丢失了
+
+![img_58.png](img_58.png)
+如果要获取参数 这三种写法都可以
+
+#### 在spring boot中使用spring cache的操作步骤（使用redis缓存技术
+![img_59.png](img_59.png)
+
+contion里面是没有#result的 unless里面有
+
+- 实战
+![img_60.png](img_60.png)
+
+#### Mysql主从复制
+Mysql主从复制是一个异步的复制过程，底层是基于Mysql数据库自带的**二进制日志**功能。就是一台或多台Mysql数据库（slave，即从库）从另一台Mysql数据库（master，即主库）进行日志的复制然后再解析日志并应用到自身，最终实现从库的数据和主库的数据保持一致。Mysql主从复制是Mysql数据库自带功能，无需借助第三方工具。
+
+Mysql复制过程分为三步：
+- master将改变记录到二进制日志（binary log）
+- slave将master的binary log拷贝到它的中继日志（relay log）
+- slave重做中继日志中的事件，将改变应用到自己的数据库中
+![img_74.png](img_74.png)
+> slave有一个专门的线程从主库的binary log读数据，然后写到自己的relay log
+> master一般只有一个 slave一般有很多个
+
+- 配置
+![img_75.png](img_75.png)
 
 
+- 主库配置
+
+![img_76.png](img_76.png)
+![img_77.png](img_77.png)
+![img_78.png](img_78.png)
+
+![img_79.png](img_79.png)
+
+- 从库配置
+![img_80.png](img_80.png)
+![img_81.png](img_81.png)
+![img_82.png](img_82.png)
+
+#### 读写分离
+![img_83.png](img_83.png)
+
+**sharding-JDBC介绍**
+![img_84.png](img_84.png)
+
+![img_85.png](img_85.png)
+
+![img_87.png](img_87.png)
+读写分离策略：
+round_robin 轮询
+
+> 定义了配置以后他就会自动判断查询时使用从库，增删改时使用主库
+
+![img_88.png](img_88.png)
+![img_89.png](img_89.png)
+> 在配置文件中允许bean定义覆盖配置项 因为Druid和shardingjdbc会创建两个名字相同的bean会产生冲突，打开这个意味着后创建的可以覆盖先创建的，避免了冲突
+
+####Nginx
+![img_90.png](img_90.png)
+- Nginix命令
+![img_92.png](img_92.png)
+
+![img_93.png](img_93.png)
+
+![img_94.png](img_94.png)
+
+![img_95.png](img_95.png)
+
+ #### Nginx具体应用
+![img_96.png](img_96.png)
+> 红色部分是固定写法 黑色部分可以自己改
+
+
+使用Nginx部署静态资源比使用tomcat部署更高效
+
+**反向代理**
+![img_98.png](img_98.png)
+
+![img_97.png](img_97.png)
+客户无感知
+
+- 配置反向代理
+![img_99.png](img_99.png)
+配置在反向代理服务器里面
+
+**负载均衡**
+![img_100.png](img_100.png)
+基于反向代理来实现的 只不过负载均衡后面有很多台服务器 并通过负载均衡算法来进行分发
+![img_101.png](img_101.png) 
+
+- 默认轮询算法
+
+**负载均衡算法**
+![img_103.png](img_103.png)
+
+![img_102.png](img_102.png)
+
+#### 前后端分离
+![img_104.png](img_104.png)
+
+![img_105.png](img_105.png)
+
+![img_107.png](img_107.png)
+
+![img_108.png](img_108.png)
+
+**接口（API接口）：就是一个http的请求地址，主要就是去定义：请求路径、请求方式、请求参数、响应数据等**
+![img_109.png](img_109.png)
+
+##### YApi
+- 介绍
+
+需要自己部署
+![img_111.png](img_111.png)
+
+##### Swagger
+![img_112.png](img_112.png)
+
+使用knife4j，底层集成了Swagger
+![img_113.png](img_113.png)
+
+![img_114.png](img_114.png)
+注意填入Controller包路径
+
+![img_115.png](img_115.png)
+
+![img_116.png](img_116.png)
+
+- 常用注解
+![img_117.png](img_117.png)
+
+**在类上使用@Api**
+![img_118.png](img_118.png)
+
+**在各个方法上使用@ApiOperation**
+![img_119.png](img_119.png)
+
+**property的说明**
+![img_120.png](img_120.png)
+
+##### 项目部署
+- 部署架构
+![img_121.png](img_121.png)
+
+Nginx部署前端和反向代理 Tomcat部署后端
+
+<font color="red">Springboot内置Tomcat 所以直接打包运行jar包就行</font>
+> 要使用内置Tomcat，您只需要在Spring Boot项目的依赖中包含spring-boot-starter-web，Spring Boot会自动处理内置Tomcat的配置和启动。
+
+- 部署环境说明
+![img_122.png](img_122.png)
+- 前端部署
+![img_123.png](img_123.png)
+
+在使用Nginx进行反向代理时 url路径往往和后端请求不一致 所以需要配置重写
+> rewrite ^/api/(.*)$ /$1 break; 
+> 
+> rewrite：这是nginx中用于执行URL重写操作的指令。
+1. ^/api/(.*)$：这是一个正则表达式模式，匹配以 /api/ 开头的URL路径。(.*) 表示捕获组，匹配任意字符。
+2. /$1：这是重写的目标，它使用捕获组 $1 中的内容来构建新的URL路径。在这里，捕获组中的内容是去掉了 /api/ 的部分，所以新的路径就是去掉了 /api/ 的部分。
+3. break：这是重写的标志，表示只执行当前的重写操作，不再继续匹配其他重写规则。
+例如，如果有一个请求 /api/resource，根据这条nginx配置，它将被重写为 /resource。
+
+![img_124.png](img_124.png)
+
+
+### 遇到的问题
+- springboot要和jdk的版本号对应 jdk1.8对应的是springboot 2.7.8
+- BeanUtils.copyProperties(Object source,Object target);必须是两个对象 不能是两个list
+- 当前端不是以JSon形式传过来很多相同类型的数据时 后端如果要接收为List 必须加Requetparam注解 springboot会帮忙自动将传过来的参数转为List
+- 在使用spring cache注解缓存时 方法返
+- 回的对象必须是可序列化的 所以我们自己定义的返回对象R必须实现序列化 加上 implements serializable
